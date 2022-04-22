@@ -17,26 +17,53 @@ export function moveCounterClockwise(move) {
   return { type: MOVE_COUNTERCLOCKWISE, payload: move }
 }
 
-export function selectAnswer() { }
+export function selectAnswer(id) { 
+  return { type: SET_SELECTED_ANSWER, payload: id }
+}
 
-export function setMessage() { }
+export function setMessage(message) { 
+  return { type: SET_INFO_MESSAGE, payload: message }
+}
 
-export function setQuiz() { }
+export function setQuiz(data) { 
+  return { type: SET_QUIZ_INTO_STATE, payload: data}
+}
 
-export function inputChange() { }
+export function inputChange(change) { 
+  return { type: INPUT_CHANGE, payload: change}
+}
 
-export function resetForm() { }
+export function resetForm() { 
+  return { type: RESET_FORM }
+}
 
 // ❗ Async action creators
 export function fetchQuiz() {
   return function (dispatch) {
+    axios.get('http://localhost:9000/api/quiz/next')
+      .then(res => {
+        dispatch(setQuiz(null))
+        dispatch(setQuiz(res.data))
+      })
+      .catch(err => {
+        console.log(err)
+      })
     // First, dispatch an action to reset the quiz state (so the "Loading next quiz..." message can display)
     // On successful GET:
     // - Dispatch an action to send the obtained quiz to its state
   }
 }
-export function postAnswer() {
+export function postAnswer({ quiz_id, answer_id }) {
   return function (dispatch) {
+    axios.post('http://localhost:9000/api/quiz/answer', { quiz_id, answer_id })
+      .then(res => {
+        dispatch(selectAnswer(null))
+        dispatch(setMessage(res.data.message))
+        dispatch(fetchQuiz())
+      })
+      .catch(err => {
+        console.log(err)
+      })
     // On successful POST:
     // - Dispatch an action to reset the selected answer state
     // - Dispatch an action to set the server message to state
